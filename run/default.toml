@@ -45,13 +45,13 @@ bootnodes="cfxnode://b98efb859fd2c9d88f9c5f7bf0da8a554a277e79122517ba7adf4f4bee8
 # If not set, the node will not start mining blocks.
 # If the value is true, `mining_author` must be set.
 #
-# start_mining=true
+start_mining=true
 
 # `mining_author` is the address to receive mining rewards.
 # The value is a 40-digit hex string without 0x prefix.
 # By default, the value is not set.
 #
-# mining_author="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+mining_author="1019ef845f021a86c9328b0632b287d478141472"
 
 # `use_stratum` controls whether the mining process goes through the
 # stratum protocol.
@@ -91,7 +91,7 @@ log_conf="log.yaml"
 # If not set, the process will try to find out the public IP with best effort, and use `port` as public port.
 # However, it's HIGHLY RECOMMENDED to set the value manually, especially for machines with IP translated by NAT.
 #
-# public_address="1.1.1.1:32323"
+public_address="198.52.129.116:32323"
 
 # `port` is the TCP port that the process listens for P2P messages.
 #
