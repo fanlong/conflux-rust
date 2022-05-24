@@ -1748,8 +1748,10 @@ impl LocalRpc for LocalRpcImpl {
             fn sign(&self, data: Bytes, address: RpcAddress, password: Option<String>)
                 -> JsonRpcResult<H520>;
             fn txpool_subscribe(&self) -> JsonRpcResult<()>;
-            fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<H160>) -> JsonRpcResult<()>;
-            fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<H160>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_sender_filter(&self, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_evm_sender_filter(&self, sender: Option<H160>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_receiver_filter(&self, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_evm_receiver_filter(&self, receiver: Option<H160>) -> JsonRpcResult<()>;
             fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
         }
 
