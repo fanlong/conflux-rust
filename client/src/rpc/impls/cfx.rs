@@ -1770,8 +1770,9 @@ impl LocalRpc for LocalRpcImpl {
             fn lock_account(&self, address: RpcAddress) -> JsonRpcResult<bool>;
             fn sign(&self, data: Bytes, address: RpcAddress, password: Option<String>)
                 -> JsonRpcResult<H520>;
-            fn txpool_subscribe(&self, sender: Option<RpcAddress>, to: Option<RpcAddress>) -> JsonRpcResult<()>;
-            fn txpool_evm_subscribe(&self, sender: Option<RpcAddress>, to: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_subscribe(&self) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
             fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
         }
 
