@@ -1336,27 +1336,33 @@ impl RpcImpl {
     }
 
     pub fn txpool_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
     ) -> RpcResult<()> {
         self.tx_pool.reset_subscription();
         if let Some(s) = sender {
-            self.tx_pool.set_filter_sender(Some(Address::from(s.hex_address).with_native_space()));
+            self.tx_pool.set_filter_sender(Some(
+                Address::from(s.hex_address).with_native_space(),
+            ));
         }
         if let Some(r) = to {
-            self.tx_pool.set_filter_receiver(Some(Address::from(r.hex_address).with_native_space()));
+            self.tx_pool.set_filter_receiver(Some(
+                Address::from(r.hex_address).with_native_space(),
+            ));
         }
         Ok(())
     }
 
     pub fn txpool_evm_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
     ) -> RpcResult<()> {
         self.tx_pool.reset_subscription();
         if let Some(s) = sender {
-            self.tx_pool.set_filter_sender(Some(s.hex_address.with_evm_space()));
+            self.tx_pool
+                .set_filter_sender(Some(s.hex_address.with_evm_space()));
         }
         if let Some(r) = to {
-            self.tx_pool.set_filter_receiver(Some(r.hex_address.with_evm_space()));
+            self.tx_pool
+                .set_filter_receiver(Some(r.hex_address.with_evm_space()));
         }
         Ok(())
     }

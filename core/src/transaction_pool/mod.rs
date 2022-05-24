@@ -36,10 +36,12 @@ use metrics::{
     RwLockExtensions,
 };
 use parking_lot::{Mutex, RwLock};
-use primitives::{Account, Action, SignedTransaction, TransactionWithSignature};
+use primitives::{
+    Account, Action, SignedTransaction, TransactionWithSignature,
+};
 use std::{
     cmp::{max, min},
-    collections::hash_map::HashMap,
+    collections::{hash_map::HashMap, hash_set::HashSet},
     mem,
     ops::DerefMut,
     sync::{
@@ -47,7 +49,6 @@ use std::{
         Arc,
     },
 };
-use std::collections::hash_set::HashSet;
 use transaction_pool_inner::TransactionPoolInner;
 
 lazy_static! {
@@ -925,7 +926,7 @@ impl TransactionPool {
 
     pub fn consume_subscription_transactions(&self) -> Vec<H256> {
         let mut subs_tx = self.subs_txs.lock();
-        let mut ret : Vec<H256> = Vec::new();
+        let mut ret: Vec<H256> = Vec::new();
         if subs_tx.is_some() {
             for tx in subs_tx.as_ref().unwrap() {
                 ret.push(tx.clone())
