@@ -8,7 +8,7 @@ use crate::rpc::types::{
     StatOnGasLoad, SyncGraphStates, Transaction as RpcTransaction,
     WrapTransaction,
 };
-use cfx_types::{H256, H520, U128, U64};
+use cfx_types::{H160, H256, H520, U128, U64};
 use cfxcore::verification::EpochReceiptProof;
 use jsonrpc_core::{BoxFuture, Result as JsonRpcResult};
 use jsonrpc_derive::rpc;
@@ -132,4 +132,34 @@ pub trait LocalRpc {
     fn transactions_by_block(
         &self, block_hash: H256,
     ) -> JsonRpcResult<Vec<WrapTransaction>>;
+
+    /// Reset transaction subscription
+    #[rpc(name = "cfx_txpoolSubscribe")]
+    fn txpool_subscribe(&self) -> JsonRpcResult<()>;
+
+    /// Set sender subscribe filter
+    #[rpc(name = "cfx_txpoolSetSubscribeSenderFilter")]
+    fn txpool_set_subscribe_sender_filter(
+        &self, sender: Option<RpcAddress>,
+    ) -> JsonRpcResult<()>;
+
+    #[rpc(name = "cfx_txpoolSetSubscribeEvmSenderFilter")]
+    fn txpool_set_subscribe_evm_sender_filter(
+        &self, sender: Option<H160>,
+    ) -> JsonRpcResult<()>;
+
+    /// Set receiver subscribe filter
+    #[rpc(name = "cfx_txpoolSetSubscribeReceiverFilter")]
+    fn txpool_set_subscribe_receiver_filter(
+        &self, receiver: Option<RpcAddress>,
+    ) -> JsonRpcResult<()>;
+
+    #[rpc(name = "cfx_txpoolSetSubscribeEvmReceiverFilter")]
+    fn txpool_set_subscribe_evm_receiver_filter(
+        &self, receiver: Option<H160>,
+    ) -> JsonRpcResult<()>;
+
+    /// Consume subscription
+    #[rpc(name = "cfx_consumeTxpoolSubscription")]
+    fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
 }

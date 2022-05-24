@@ -560,6 +560,14 @@ impl RpcImpl {
         }
     }
 
+    pub fn add_reserved_node(&self, node_url: String) -> JsonRpcResult<()> {
+        info!("RPC Request: add_reserved_node({:?})", node_url);
+        match self.network.add_reserved_node(node_url) {
+            Ok(_x) => Ok(()),
+            Err(_) => Err(RpcError::internal_error()),
+        }
+    }
+
     pub fn chain(&self) -> RpcResult<Vec<RpcBlock>> {
         info!("RPC Request: cfx_getChain");
         let consensus_graph = self.consensus_graph();
@@ -1344,6 +1352,81 @@ impl RpcImpl {
             first_tx_status: tx_status,
             pending_count: pending_count.into(),
         })
+    }
+
+    pub fn txpool_subscribe(&self) -> RpcResult<()> {
+        info!("RPC Request: cfx_txpoolSubscribe()");
+        self.tx_pool.reset_subscription();
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_sender_filter(
+        &self, sender: Option<RpcAddress>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeSenderFilter(sender={:?}",
+            sender
+        );
+        let addr = if let Some(s) = sender {
+            Some(s.hex_address.with_native_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_sender(addr);
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_evm_sender_filter(
+        &self, sender: Option<H160>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeEvmSenderFilter(sender={:?}",
+            sender
+        );
+        let addr = if let Some(s) = sender {
+            Some(s.with_evm_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_sender(addr);
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_receiver_filter(
+        &self, receiver: Option<RpcAddress>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeReceiverFilter(receiver={:?}",
+            receiver
+        );
+        let addr = if let Some(a) = receiver {
+            Some(a.hex_address.with_native_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_receiver(addr);
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_evm_receiver_filter(
+        &self, receiver: Option<H160>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeEvmReceiverFilter(receiver={:?}",
+            receiver
+        );
+        let addr = if let Some(a) = receiver {
+            Some(a.with_evm_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_receiver(addr);
+        Ok(())
+    }
+
+    pub fn consume_txpool_subscription(&self) -> RpcResult<Vec<H256>> {
+        info!("RPC Request: cfx_txpoolSubscription()");
+        Ok(self.tx_pool.consume_subscription_transactions())
     }
 }
 

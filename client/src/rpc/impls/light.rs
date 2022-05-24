@@ -1172,6 +1172,7 @@ impl TestRpc for TestRpcImpl {
         to self.common {
             fn add_latency(&self, id: NodeId, latency_ms: f64) -> JsonRpcResult<()>;
             fn add_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
+            fn add_reserved_node(&self, node_url: String) -> JsonRpcResult<()>;
             fn chain(&self) -> JsonRpcResult<Vec<RpcBlock>>;
             fn drop_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
             fn get_block_count(&self) -> JsonRpcResult<u64>;
@@ -1262,5 +1263,11 @@ impl LocalRpc for DebugRpcImpl {
         fn sync_graph_state(&self) -> JsonRpcResult<SyncGraphStates>;
         fn transactions_by_epoch(&self, epoch_number: U64) -> JsonRpcResult<Vec<WrapTransaction>>;
         fn transactions_by_block(&self, block_hash: H256) -> JsonRpcResult<Vec<WrapTransaction>>;
+        fn txpool_subscribe(&self) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_sender_filter(&self, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_evm_sender_filter(&self, sender: Option<H160>) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_receiver_filter(&self, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_evm_receiver_filter(&self, receiver: Option<H160>) -> JsonRpcResult<()>;
+        fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
     }
 }

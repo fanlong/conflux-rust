@@ -20,8 +20,8 @@ use cfx_statedb::{
     StateDbExt,
 };
 use cfx_types::{
-    Address, AddressSpaceUtil, BigEndianHash, Space, H256, H520, U128, U256,
-    U64,
+    Address, AddressSpaceUtil, BigEndianHash, Space, H160, H256, H520, U128,
+    U256, U64,
 };
 use cfxcore::{
     executive::{
@@ -2307,6 +2307,7 @@ impl TestRpc for TestRpcImpl {
         to self.common {
             fn add_latency(&self, id: NodeId, latency_ms: f64) -> JsonRpcResult<()>;
             fn add_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
+            fn add_reserved_node(&self, node_url: String) -> JsonRpcResult<()>;
             fn chain(&self) -> JsonRpcResult<Vec<RpcBlock>>;
             fn drop_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
             fn get_block_count(&self) -> JsonRpcResult<u64>;
@@ -2395,7 +2396,12 @@ impl LocalRpc for LocalRpcImpl {
             fn lock_account(&self, address: RpcAddress) -> JsonRpcResult<bool>;
             fn sign(&self, data: Bytes, address: RpcAddress, password: Option<String>)
                 -> JsonRpcResult<H520>;
-
+            fn txpool_subscribe(&self) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_sender_filter(&self, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_evm_sender_filter(&self, sender: Option<H160>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_receiver_filter(&self, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_evm_receiver_filter(&self, receiver: Option<H160>) -> JsonRpcResult<()>;
+            fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
         }
 
         to self.rpc_impl {
