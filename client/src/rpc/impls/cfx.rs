@@ -11,8 +11,8 @@ use blockgen::BlockGenerator;
 use cfx_state::state_trait::StateOpsTrait;
 use cfx_statedb::StateDbExt;
 use cfx_types::{
-    Address, AddressSpaceUtil, BigEndianHash, Space, H256, H520, U128, U256,
-    U64,
+    Address, AddressSpaceUtil, BigEndianHash, Space, H160, H256, H520, U128,
+    U256, U64,
 };
 use cfxcore::{
     executive::{ExecutionError, ExecutionOutcome, TxDropError},
@@ -1771,8 +1771,8 @@ impl LocalRpc for LocalRpcImpl {
             fn sign(&self, data: Bytes, address: RpcAddress, password: Option<String>)
                 -> JsonRpcResult<H520>;
             fn txpool_subscribe(&self) -> JsonRpcResult<()>;
-            fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
-            fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<H160>) -> JsonRpcResult<()>;
+            fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<H160>) -> JsonRpcResult<()>;
             fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
         }
 

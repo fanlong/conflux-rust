@@ -1342,14 +1342,14 @@ impl RpcImpl {
     }
 
     pub fn txpool_set_subscribe_sender_filter(
-        &self, space: String, sender: Option<RpcAddress>,
+        &self, space: String, sender: Option<H160>,
     ) -> RpcResult<()> {
         info!("RPC Request: cfx_getSetSubscribeSenderFilter(space={:?}, sender={:?}", space, sender);
         let addr = if let Some(s) = sender {
             if space == "native" {
-                Some(s.hex_address.with_native_space())
+                Some(s.with_native_space())
             } else if space == "evm" {
-                Some(s.hex_address.with_evm_space())
+                Some(s.with_evm_space())
             } else {
                 bail!(RpcError::invalid_params(
                     "space must be either native or evm!"
@@ -1363,14 +1363,14 @@ impl RpcImpl {
     }
 
     pub fn txpool_set_subscribe_receiver_filter(
-        &self, space: String, receiver: Option<RpcAddress>,
+        &self, space: String, receiver: Option<H160>,
     ) -> RpcResult<()> {
         info!("RPC Request: cfx_getSetSubscribeReceiverFilter(space={:?}, receiver={:?}", space, receiver);
         let addr = if let Some(a) = receiver {
             if space == "native" {
-                Some(a.hex_address.with_native_space())
+                Some(a.with_native_space())
             } else if space == "evm" {
-                Some(a.hex_address.with_evm_space())
+                Some(a.with_evm_space())
             } else {
                 bail!(RpcError::invalid_params(
                     "space must be either native or evm!"

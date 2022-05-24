@@ -7,7 +7,7 @@ use crate::rpc::types::{
     Receipt as RpcReceipt, RpcAddress, SendTxRequest, SyncGraphStates,
     Transaction as RpcTransaction,
 };
-use cfx_types::{H256, H520, U128};
+use cfx_types::{H160, H256, H520, U128};
 use jsonrpc_core::{BoxFuture, Result as JsonRpcResult};
 use jsonrpc_derive::rpc;
 use network::{
@@ -117,13 +117,13 @@ pub trait LocalRpc {
     /// Set sender subscribe filter
     #[rpc(name = "cfx_txpoolSetSubscribeSenderFilter")]
     fn txpool_set_subscribe_sender_filter(
-        &self, space: String, sender: Option<RpcAddress>,
+        &self, space: String, sender: Option<H160>,
     ) -> JsonRpcResult<()>;
 
     /// Set receiver subscribe filter
     #[rpc(name = "cfx_txpoolSetSubscribeReceiverFilter")]
     fn txpool_set_subscribe_receiver_filter(
-        &self, space: String, receiver: Option<RpcAddress>,
+        &self, space: String, receiver: Option<H160>,
     ) -> JsonRpcResult<()>;
 
     /// Consume subscription
