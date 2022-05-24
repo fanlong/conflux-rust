@@ -112,14 +112,18 @@ pub trait LocalRpc {
 
     /// Reset transaction subscription
     #[rpc(name = "cfx_txpoolSubscribe")]
-    fn txpool_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
+    fn txpool_subscribe(&self) -> JsonRpcResult<()>;
+
+    /// Set sender subscribe filter
+    #[rpc(name = "cfx_txpoolSetSubscribeSenderFilter")]
+    fn txpool_set_subscribe_sender_filter(
+        &self, space: String, sender: Option<RpcAddress>,
     ) -> JsonRpcResult<()>;
 
-    /// Reset transaction subscription
-    #[rpc(name = "cfx_txpoolEvmSubscribe")]
-    fn txpool_evm_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
+    /// Set receiver subscribe filter
+    #[rpc(name = "cfx_txpoolSetSubscribeReceiverFilter")]
+    fn txpool_set_subscribe_receiver_filter(
+        &self, space: String, receiver: Option<RpcAddress>,
     ) -> JsonRpcResult<()>;
 
     /// Consume subscription
