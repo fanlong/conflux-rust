@@ -1224,5 +1224,8 @@ impl LocalRpc for DebugRpcImpl {
         fn epoch_receipts(&self, epoch: BlockHashOrEpochNumber) -> JsonRpcResult<Option<Vec<Vec<RpcReceipt>>>>;
         fn sign_transaction(&self, tx: SendTxRequest, password: Option<String>) -> JsonRpcResult<String>;
         fn sync_graph_state(&self) -> JsonRpcResult<SyncGraphStates>;
+        fn txpool_subscribe(&self, sender: Option<RpcAddress>, to: Option<RpcAddress>) -> JsonRpcResult<()>;
+        fn txpool_evm_subscribe(&self, sender: Option<RpcAddress>, to: Option<RpcAddress>) -> JsonRpcResult<()>;
+        fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
     }
 }
