@@ -113,13 +113,13 @@ pub trait LocalRpc {
     /// Reset transaction subscription
     #[rpc(name = "cfx_txpoolSubscribe")]
     fn txpool_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
     ) -> JsonRpcResult<()>;
 
     /// Reset transaction subscription
     #[rpc(name = "cfx_txpoolEvmSubscribe")]
     fn txpool_evm_subscribe(
-        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>,
     ) -> JsonRpcResult<()>;
 
     /// Consume subscription
