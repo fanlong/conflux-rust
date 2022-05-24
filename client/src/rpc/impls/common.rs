@@ -1344,19 +1344,30 @@ impl RpcImpl {
     }
 
     pub fn txpool_set_subscribe_sender_filter(
-        &self, space: String, sender: Option<H160>,
+        &self, sender: Option<RpcAddress>,
     ) -> RpcResult<()> {
-        info!("RPC Request: cfx_getSetSubscribeSenderFilter(space={:?}, sender={:?}", space, sender);
+        info!(
+            "RPC Request: cfx_getSetSubscribeSenderFilter(sender={:?}",
+            sender
+        );
         let addr = if let Some(s) = sender {
-            if space == "native" {
-                Some(s.with_native_space())
-            } else if space == "evm" {
-                Some(s.with_evm_space())
-            } else {
-                bail!(RpcError::invalid_params(
-                    "space must be either native or evm!"
-                ))
-            }
+            Some(s.hex_address.with_native_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_sender(addr);
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_evm_sender_filter(
+        &self, sender: Option<H160>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeEvmSenderFilter(sender={:?}",
+            sender
+        );
+        let addr = if let Some(s) = sender {
+            Some(s.with_evm_space())
         } else {
             None
         };
@@ -1365,19 +1376,30 @@ impl RpcImpl {
     }
 
     pub fn txpool_set_subscribe_receiver_filter(
-        &self, space: String, receiver: Option<H160>,
+        &self, receiver: Option<RpcAddress>,
     ) -> RpcResult<()> {
-        info!("RPC Request: cfx_getSetSubscribeReceiverFilter(space={:?}, receiver={:?}", space, receiver);
+        info!(
+            "RPC Request: cfx_getSetSubscribeReceiverFilter(receiver={:?}",
+            receiver
+        );
         let addr = if let Some(a) = receiver {
-            if space == "native" {
-                Some(a.with_native_space())
-            } else if space == "evm" {
-                Some(a.with_evm_space())
-            } else {
-                bail!(RpcError::invalid_params(
-                    "space must be either native or evm!"
-                ))
-            }
+            Some(a.hex_address.with_native_space())
+        } else {
+            None
+        };
+        self.tx_pool.set_filter_receiver(addr);
+        Ok(())
+    }
+
+    pub fn txpool_set_subscribe_evm_receiver_filter(
+        &self, receiver: Option<H160>,
+    ) -> RpcResult<()> {
+        info!(
+            "RPC Request: cfx_getSetSubscribeEvmReceiverFilter(receiver={:?}",
+            receiver
+        );
+        let addr = if let Some(a) = receiver {
+            Some(a.with_evm_space())
         } else {
             None
         };

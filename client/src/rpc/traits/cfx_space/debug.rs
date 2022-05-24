@@ -117,13 +117,23 @@ pub trait LocalRpc {
     /// Set sender subscribe filter
     #[rpc(name = "cfx_txpoolSetSubscribeSenderFilter")]
     fn txpool_set_subscribe_sender_filter(
-        &self, space: String, sender: Option<H160>,
+        &self, sender: Option<RpcAddress>,
+    ) -> JsonRpcResult<()>;
+
+    #[rpc(name = "cfx_txpoolSetSubscribeEvmSenderFilter")]
+    fn txpool_set_subscribe_evm_sender_filter(
+        &self, sender: Option<H160>,
     ) -> JsonRpcResult<()>;
 
     /// Set receiver subscribe filter
     #[rpc(name = "cfx_txpoolSetSubscribeReceiverFilter")]
     fn txpool_set_subscribe_receiver_filter(
-        &self, space: String, receiver: Option<H160>,
+        &self, receiver: Option<RpcAddress>,
+    ) -> JsonRpcResult<()>;
+
+    #[rpc(name = "cfx_txpoolSetSubscribeEvmReceiverFilter")]
+    fn txpool_set_subscribe_evm_receiver_filter(
+        &self, receiver: Option<H160>,
     ) -> JsonRpcResult<()>;
 
     /// Consume subscription
