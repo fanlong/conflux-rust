@@ -109,4 +109,20 @@ pub trait LocalRpc {
     fn epoch_receipts(
         &self, epoch: BlockHashOrEpochNumber,
     ) -> JsonRpcResult<Option<Vec<Vec<RpcReceipt>>>>;
+
+    /// Reset transaction subscription
+    #[rpc(name = "cfx_txpoolSubscribe")]
+    fn txpool_subscribe(
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+    ) -> JsonRpcResult<()>;
+
+    /// Reset transaction subscription
+    #[rpc(name = "cfx_txpoolEvmSubscribe")]
+    fn txpool_evm_subscribe(
+        &self, sender: Option<RpcAddress>, to: Option<RpcAddress>
+    ) -> JsonRpcResult<()>;
+
+    /// Consume subscription
+    #[rpc(name = "cfx_consumeTxpoolSubscription")]
+    fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
 }

@@ -36,7 +36,7 @@ use metrics::{
     RwLockExtensions,
 };
 use parking_lot::{Mutex, RwLock};
-use primitives::{Account, SignedTransaction, TransactionWithSignature};
+use primitives::{Account, Action, SignedTransaction, TransactionWithSignature};
 use std::{
     cmp::{max, min},
     collections::hash_map::HashMap,
@@ -47,6 +47,7 @@ use std::{
         Arc,
     },
 };
+use std::collections::hash_set::HashSet;
 use transaction_pool_inner::TransactionPoolInner;
 
 lazy_static! {
@@ -129,6 +130,11 @@ pub struct TransactionPool {
     /// If it's `false`, operations on the tx pool will be ignored to save
     /// memory/CPU cost.
     ready_for_mining: AtomicBool,
+
+    /// Pending transaction subscription
+    subs_txs: Mutex<Option<HashSet<H256>>>,
+    filter_sender: Mutex<Option<Address>>,
+    filter_receiver: Mutex<Option<Address>>,
 }
 
 impl MallocSizeOf for TransactionPool {
@@ -191,6 +197,9 @@ impl TransactionPool {
             recycle_tx_requests: Mutex::new(Default::default()),
             machine,
             ready_for_mining: AtomicBool::new(false),
+            subs_txs: Mutex::new(None),
+            filter_sender: Mutex::new(None),
+            filter_receiver: Mutex::new(None),
         }
     }
 
@@ -375,6 +384,35 @@ impl TransactionPool {
 
         INSERT_TXS_SUCCESS_TPS.mark(passed_transactions.len());
         INSERT_TXS_FAILURE_TPS.mark(failure.len());
+
+        {
+            let mut subs_txs = self.subs_txs.lock();
+            let filter_sender = self.filter_sender.lock().clone();
+            let filter_receiver = self.filter_receiver.lock().clone();
+            if subs_txs.is_some() {
+                for tx in &passed_transactions {
+                    if let Some(sender) = filter_sender {
+                        if tx.space() != sender.space {
+                            continue;
+                        }
+                        if sender.address != tx.sender {
+                            continue;
+                        }
+                    }
+                    if let Some(receiver) = filter_receiver {
+                        if tx.space() != receiver.space {
+                            continue;
+                        }
+                        if let Action::Call(addr) = tx.unsigned.action() {
+                            if *addr != receiver.address {
+                                continue;
+                            }
+                        }
+                    }
+                    subs_txs.as_mut().unwrap().insert(tx.hash.clone());
+                }
+            }
+        }
 
         (passed_transactions, failure)
     }
@@ -623,7 +661,7 @@ impl TransactionPool {
         best_epoch_height += 1;
         // The best block number is not necessary an exact number.
         best_block_number += 1;
-        inner.pack_transactions(
+        let ret = inner.pack_transactions(
             num_txs,
             block_gas_limit,
             evm_gas_limit,
@@ -632,7 +670,16 @@ impl TransactionPool {
             best_block_number,
             &self.verification_config,
             &self.machine,
-        )
+        );
+        {
+            let mut subs_txs = self.subs_txs.lock();
+            if subs_txs.is_some() {
+                for tx in &ret {
+                    subs_txs.as_mut().unwrap().remove(&tx.hash);
+                }
+            }
+        }
+        ret
     }
 
     pub fn notify_modified_accounts(
@@ -859,5 +906,32 @@ impl TransactionPool {
 
     pub fn set_ready(&self) {
         self.ready_for_mining.store(true, Ordering::SeqCst);
+    }
+
+    pub fn reset_subscription(&self) {
+        let mut subs_txs = self.subs_txs.lock();
+        *subs_txs = Some(HashSet::new());
+    }
+
+    pub fn set_filter_sender(&self, sender: Option<Address>) {
+        let mut filter_sender = self.filter_sender.lock();
+        *filter_sender = sender;
+    }
+
+    pub fn set_filter_receiver(&self, receiver: Option<Address>) {
+        let mut filter_receiver = self.filter_receiver.lock();
+        *filter_receiver = receiver;
+    }
+
+    pub fn consume_subscription_transactions(&self) -> Vec<H256> {
+        let mut subs_tx = self.subs_txs.lock();
+        let mut ret : Vec<H256> = Vec::new();
+        if subs_tx.is_some() {
+            for tx in subs_tx.as_ref().unwrap() {
+                ret.push(tx.clone())
+            }
+            *subs_tx = Some(HashSet::new());
+        }
+        ret
     }
 }
