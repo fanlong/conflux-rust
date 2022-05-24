@@ -1225,8 +1225,8 @@ impl LocalRpc for DebugRpcImpl {
         fn sign_transaction(&self, tx: SendTxRequest, password: Option<String>) -> JsonRpcResult<String>;
         fn sync_graph_state(&self) -> JsonRpcResult<SyncGraphStates>;
         fn txpool_subscribe(&self) -> JsonRpcResult<()>;
-        fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<RpcAddress>) -> JsonRpcResult<()>;
-        fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<RpcAddress>) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_sender_filter(&self, space: String, sender: Option<H160>) -> JsonRpcResult<()>;
+        fn txpool_set_subscribe_receiver_filter(&self, space: String, receiver: Option<H160>) -> JsonRpcResult<()>;
         fn consume_txpool_subscription(&self) -> JsonRpcResult<Vec<H256>>;
     }
 }
