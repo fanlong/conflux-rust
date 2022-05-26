@@ -39,6 +39,9 @@ pub trait TestRpc {
     #[rpc(name = "removenode")]
     fn drop_peer(&self, id: NodeId, addr: SocketAddr) -> RpcResult<()>;
 
+    #[rpc(name = "addreservednode")]
+    fn add_reserved_node(&self, node_url: String) -> RpcResult<()>;
+
     #[rpc(name = "getpeerinfo")]
     fn get_peer_info(&self) -> RpcResult<Vec<PeerInfo>>;
 

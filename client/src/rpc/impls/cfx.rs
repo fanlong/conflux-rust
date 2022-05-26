@@ -1683,6 +1683,7 @@ impl TestRpc for TestRpcImpl {
         to self.common {
             fn add_latency(&self, id: NodeId, latency_ms: f64) -> JsonRpcResult<()>;
             fn add_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
+            fn add_reserved_node(&self, node_url: String) -> JsonRpcResult<()>;
             fn chain(&self) -> JsonRpcResult<Vec<RpcBlock>>;
             fn drop_peer(&self, node_id: NodeId, address: SocketAddr) -> JsonRpcResult<()>;
             fn get_block_count(&self) -> JsonRpcResult<u64>;
