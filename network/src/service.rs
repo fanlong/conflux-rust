@@ -261,6 +261,15 @@ impl NetworkService {
         }
     }
 
+    /// Add a reserved node to the client, this will force the client to connect
+    pub fn add_reserved_node(&self, node_url: String) -> Result<(), Error> {
+        if let Some(ref x) = self.inner {
+            x.add_reserved_node(node_url.as_str())
+        } else {
+            Err("Network service not started yet!".into())
+        }
+    }
+
     /// Drop a P2P peer from the client
     pub fn drop_peer(&self, node: NodeEntry) -> Result<(), Error> {
         if let Some(ref x) = self.inner {
@@ -618,7 +627,7 @@ impl NetworkServiceInner {
 
         let nodes_path = config.config_path.clone();
 
-        let mut inner = NetworkServiceInner {
+        let inner = NetworkServiceInner {
             metadata: HostMetadata {
                 network_id: config.id,
                 keys,
@@ -714,7 +723,7 @@ impl NetworkServiceInner {
         }
     }
 
-    fn add_reserved_node(&mut self, id: &str) -> Result<(), Error> {
+    fn add_reserved_node(&self, id: &str) -> Result<(), Error> {
         let n = Node::from_str(id)?;
         self.node_db.write().insert_trusted(NodeEntry {
             id: n.id.clone(),

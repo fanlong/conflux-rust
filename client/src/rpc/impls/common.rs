@@ -553,6 +553,14 @@ impl RpcImpl {
         }
     }
 
+    pub fn add_reserved_node(&self, node_url: String) -> JsonRpcResult<()> {
+        info!("RPC Request: add_reserved_node({:?})", node_url);
+        match self.network.add_reserved_node(node_url) {
+            Ok(_x) => Ok(()),
+            Err(_) => Err(RpcError::internal_error()),
+        }
+    }
+
     pub fn chain(&self) -> RpcResult<Vec<RpcBlock>> {
         info!("RPC Request: cfx_getChain");
         let consensus_graph = self.consensus_graph();
