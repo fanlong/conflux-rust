@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Derive macros for crypto operations"><title>diem_crypto_derive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="diem_crypto_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (854f22563 2025-01-31)" data-channel="nightly" data-search-js="search-2d513d54.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-302de22f.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-9b5d7e41.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../diem_crypto_derive/index.html">diem_<wbr>crypto_<wbr>derive</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#derive-macros-for-crypto-operations" title="Derive macros for crypto operations">Derive macros for crypto operations</a></li><li><a href="#unions-of-signing-traits-in-detail" title="Unions of Signing Traits, in detail">Unions of Signing Traits, in detail</a><ul><li><a href="#example" title="Example">Example</a></li></ul></li></ul><h3><a href="#derives">Crate Items</a></h3><ul class="block"><li><a href="#derives" title="Derive Macros">Derive Macros</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>diem_crypto_derive</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/diem_crypto_derive/lib.rs.html#8-474">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="derive-macros-for-crypto-operations"><a class="doc-anchor" href="#derive-macros-for-crypto-operations">§</a>Derive macros for crypto operations</h2>
+<p>This crate contains four types of derive macros:</p>
+<ul>
+<li>the <code>SilentDebug</code> and SilentDisplay macros are meant to be used on private
+key types, and elide their input for confidentiality.</li>
+<li>the <code>Deref</code> macro helps derive the canonical instances on new types.</li>
+<li>the derive macros for <code>diem_crypto::traits</code>, namely <code>ValidCryptoMaterial</code>,
+<code>PublicKey</code>, <code>PrivateKey</code>, <code>VerifyingKey</code>, <code>SigningKey</code> and <code>Signature</code>
+are meant to be derived on simple unions of types implementing these
+traits.</li>
+<li>the derive macro for <code>diem_crypto::hash::CryptoHasher</code>, which defines the
+domain-separation hasher structures described in <code>diem_crypto::hash</code> (look
+there for details). This derive macro has for sole difference that it
+automatically picks a unique salt for you, using the Serde name. For a
+container <code>Foo</code>, this is usually equivalent to:</li>
+</ul>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="macro">define_hasher!</span> {
+  ( FooHasher, FOO_HASHER, <span class="string">b"Foo" </span>) }</code></pre></div>
+<h2 id="unions-of-signing-traits-in-detail"><a class="doc-anchor" href="#unions-of-signing-traits-in-detail">§</a>Unions of Signing Traits, in detail</h2>
+<p>Those types typically come into play when you need to accept several
+alternatives at runtime for several signature and verification schemes
+(ex: BLS or EdDSA, see below). In this case, it is possible to declare
+a triplet of enum types that each describe a ‘sum type’ (coproduct) of these
+alternatives. This happens to be a signing scheme itself (it has
+canonical signature, signing &amp; verifying key types, and verifies all
+expected properties by trivial dispatch).</p>
+<p>The macros below let you define this type of union trivially under two
+conditions:</p>
+<ul>
+<li>that the variant tags for the enum have the same name, i.e. if the BLS
+variant for the <code>SignatureUnion</code> is
+<code>SignatureUnion::BLS(BLS12381Signature)</code>, then the variant of the
+<code>PublicKeyUnion</code> for BLS must also be <code>PublicKeyUnion::BLS</code>,</li>
+<li>that you specify the associated types <code>PrivateKeyType</code>, <code>SignatureType</code>
+and <code>PublicKeyType</code> for each of the three unions. <code>PrivateKeyType</code>
+provides the value for the <code>VerifyingKeyMaterial</code> and <code>PublicKeyMaterial</code>
+associated types, <code>PublicKeyType</code> provides the valid for the
+<code>SigningKeyMaterial</code> and <code>PrivateKeyMaterial</code> associated types and
+<code>SignatureType</code> provides the value for the <code>SignatureMaterial</code> associated
+type.</li>
+</ul>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>diem_crypto::{
+    hash::HashValue,
+    bls12381::{BLS12381PrivateKey, BLS12381PublicKey, BLS12381Signature},
+    ed25519::{Ed25519PrivateKey, Ed25519PublicKey, Ed25519Signature},
+};
+<span class="kw">use </span>diem_crypto_derive::{
+    SilentDebug, PrivateKey, PublicKey, Signature, SigningKey, ValidCryptoMaterial, VerifyingKey,
+};
+
+<span class="doccomment">/// Generic public key enum
+</span><span class="attr">#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, ValidCryptoMaterial, PublicKey, VerifyingKey,
+)]
+#[PrivateKeyType = <span class="string">"GenericPrivateKey"</span>]
+#[SignatureType = <span class="string">"GenericSignature"</span>]
+</span><span class="kw">pub enum </span>GenericPublicKey {
+    <span class="doccomment">/// Ed25519 public key
+    </span>Ed(Ed25519PublicKey),
+    <span class="doccomment">/// BLS12-381 public key
+    </span>BLS(BLS12381PublicKey),
+}
+<span class="doccomment">/// Generic private key enum
+</span><span class="attr">#[derive(SilentDebug, ValidCryptoMaterial, PrivateKey, SigningKey)]
+#[PublicKeyType = <span class="string">"GenericPublicKey"</span>]
+#[SignatureType = <span class="string">"GenericSignature"</span>]
+</span><span class="kw">pub enum </span>GenericPrivateKey {
+    <span class="doccomment">/// Ed25519 private key
+    </span>Ed(Ed25519PrivateKey),
+    <span class="doccomment">/// BLS12-381 private key
+    </span>BLS(BLS12381PrivateKey),
+}
+<span class="doccomment">/// Generic signature enum
+</span><span class="attr">#[allow(clippy::large_enum_variant)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Signature)]
+#[PrivateKeyType = <span class="string">"GenericPrivateKey"</span>]
+#[PublicKeyType = <span class="string">"GenericPublicKey"</span>]
+</span><span class="kw">pub enum </span>GenericSignature {
+    <span class="doccomment">/// Ed25519 signature
+    </span>Ed(Ed25519Signature),
+    <span class="doccomment">/// BLS12-381 signature
+    </span>BLS(BLS12381Signature),
+}</code></pre></div>
+</div></details><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><dl class="item-table"><dt><a class="derive" href="derive.BCSCryptoHash.html" title="derive diem_crypto_derive::BCSCryptoHash">BCSCrypto<wbr>Hash</a></dt><dt><a class="derive" href="derive.CryptoHasher.html" title="derive diem_crypto_derive::CryptoHasher">Crypto<wbr>Hasher</a></dt><dt><a class="derive" href="derive.Deref.html" title="derive diem_crypto_derive::Deref">Deref</a></dt><dt><a class="derive" href="derive.DeserializeKey.html" title="derive diem_crypto_derive::DeserializeKey">Deserialize<wbr>Key</a></dt><dd>Deserialize from a human readable format where applicable</dd><dt><a class="derive" href="derive.PrivateKey.html" title="derive diem_crypto_derive::PrivateKey">Private<wbr>Key</a></dt><dt><a class="derive" href="derive.PublicKey.html" title="derive diem_crypto_derive::PublicKey">Public<wbr>Key</a></dt><dt><a class="derive" href="derive.SerializeKey.html" title="derive diem_crypto_derive::SerializeKey">Serialize<wbr>Key</a></dt><dd>Serialize into a human readable format where applicable</dd><dt><a class="derive" href="derive.Signature.html" title="derive diem_crypto_derive::Signature">Signature</a></dt><dt><a class="derive" href="derive.SigningKey.html" title="derive diem_crypto_derive::SigningKey">Signing<wbr>Key</a></dt><dt><a class="derive" href="derive.SilentDebug.html" title="derive diem_crypto_derive::SilentDebug">Silent<wbr>Debug</a></dt><dt><a class="derive" href="derive.SilentDisplay.html" title="derive diem_crypto_derive::SilentDisplay">Silent<wbr>Display</a></dt><dt><a class="derive" href="derive.ValidCryptoMaterial.html" title="derive diem_crypto_derive::ValidCryptoMaterial">Valid<wbr>Crypto<wbr>Material</a></dt><dt><a class="derive" href="derive.VerifyingKey.html" title="derive diem_crypto_derive::VerifyingKey">Verifying<wbr>Key</a></dt></dl></section></div></main></body></html>

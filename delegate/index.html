@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate removes some boilerplate for structs that simply delegate some of their methods to one or more of their fields."><title>delegate - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-cf3c48c1.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="delegate" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0-nightly (854f22563 2025-01-31)" data-channel="nightly" data-search-js="search-2d513d54.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-302de22f.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-9b5d7e41.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../delegate/index.html">delegate</a><span class="version">0.4.2</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#features" title="Features:">Features:</a></li></ul><h3><a href="#macros">Crate Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>delegate</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/delegate/lib.rs.html#1-341">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate removes some boilerplate for structs that simply delegate
+some of their methods to one or more of their fields.</p>
+<p>It gives you the <code>delegate!</code> macro, which delegates method calls to selected
+expressions (usually inner fields).</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features:</h3>
+<ul>
+<li>Delegate to a method with a different name</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>delegate::delegate;
+
+<span class="kw">struct </span>Stack {
+    inner: Vec&lt;u32&gt;,
+}
+<span class="kw">impl </span>Stack {
+    <span class="macro">delegate!</span> {
+        to <span class="self">self</span>.inner {
+            <span class="attr">#[call(push)]
+            </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32);
+        }
+    }
+}</code></pre></div>
+<ul>
+<li>Use an arbitrary inner field expression</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>delegate::delegate;
+<span class="kw">use </span>std::{cell::RefCell, ops::Deref, rc::Rc};
+
+<span class="kw">struct </span>Wrapper {
+    inner: Rc&lt;RefCell&lt;Vec&lt;u32&gt;&gt;&gt;,
+}
+<span class="kw">impl </span>Wrapper {
+    <span class="macro">delegate!</span> {
+        to <span class="self">self</span>.inner.deref().borrow_mut() {
+            <span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u32);
+        }
+    }
+}</code></pre></div>
+<ul>
+<li>Change the return type of the delegated method using a <code>From</code> impl or omit
+it altogether</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>delegate::delegate;
+<span class="kw">use </span>std::convert <span class="kw">as </span>delegate_convert;
+
+<span class="kw">struct </span>Inner;
+<span class="kw">impl </span>Inner {
+    <span class="kw">pub fn </span>method(<span class="kw-2">&amp;</span><span class="self">self</span>, num: u32) -&gt; u32 { num }
+}
+<span class="kw">struct </span>Wrapper {
+    inner: Inner,
+}
+<span class="kw">impl </span>Wrapper {
+    <span class="macro">delegate!</span> {
+        to <span class="self">self</span>.inner {
+            <span class="comment">// calls method, converts result to u64
+            </span><span class="attr">#[into]
+            </span><span class="kw">pub fn </span>method(<span class="kw-2">&amp;</span><span class="self">self</span>, num: u32) -&gt; u64;
+
+            <span class="comment">// calls method, returns ()
+            </span><span class="attr">#[call(method)]
+            </span><span class="kw">pub fn </span>method_noreturn(<span class="kw-2">&amp;</span><span class="self">self</span>, num: u32);
+        }
+    }
+}</code></pre></div>
+<ul>
+<li>Delegate to multiple fields</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>delegate::delegate;
+
+<span class="kw">struct </span>MultiStack {
+    left: Vec&lt;u32&gt;,
+    right: Vec&lt;u32&gt;,
+}
+<span class="kw">impl </span>MultiStack {
+    <span class="macro">delegate!</span> {
+        to <span class="self">self</span>.left {
+            <span class="doccomment">///! Push an item to the top of the left stack
+            </span><span class="attr">#[call(push)]
+            </span><span class="kw">pub fn </span>push_left(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32);
+        }
+        to <span class="self">self</span>.right {
+            <span class="doccomment">///! Push an item to the top of the right stack
+            </span><span class="attr">#[call(push)]
+            </span><span class="kw">pub fn </span>push_right(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32);
+        }
+    }
+}</code></pre></div>
+<ul>
+<li>Delegation of generic methods</li>
+<li>Inserts <code>#[inline(always)]</code> automatically (unless you specify <code>#[inline]</code>
+manually on the method)</li>
+</ul>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.delegate.html" title="macro delegate::delegate">delegate</a></dt></dl></section></div></main></body></html>

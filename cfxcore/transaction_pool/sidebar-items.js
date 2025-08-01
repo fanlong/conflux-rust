@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TransactionPoolError"],"struct":["TransactionPool","TxPoolConfig"],"type":["SharedTransactionPool"]};
